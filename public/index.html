@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusAuth | Secure Access</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --danger: #d63031;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            margin: 1rem;
+        }
+
+        .auth-card {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            padding: 2.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .auth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #fff, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background: #5a4bd4;
+            transform: translateY(-2px);
+        }
+
+        .btn-google {
+            background: white;
+            color: var(--dark);
+            margin-top: 1rem;
+        }
+
+        .btn-google:hover {
+            background: #f1f1f1;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .divider::before {
+            margin-right: 1rem;
+        }
+
+        .divider::after {
+            margin-left: 1rem;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            opacity: 1;
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .blob {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(166, 142, 255, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-radius: 50%;
+            filter: blur(30px);
+            z-index: -1;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .blob:nth-child(1) {
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob:nth-child(2) {
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            25% {
+                transform: translate(50px, 50px);
+            }
+            50% {
+                transform: translate(0, 100px);
+            }
+            75% {
+                transform: translate(-50px, 50px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .auth-card {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob"></div>
+    <div class="blob"></div>
+
+    <div class="container">
+        <!-- Login Form -->
+        <div class="auth-card" id="login-card">
+            <div class="logo">
+                <h1>NexusAuth</h1>
+                <p>Secure access to your digital world</p>
+            </div>
+
+            <div class="success-message" id="login-success-msg"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" class="form-control" placeholder="Enter your email" required>
+                    <div class="error-message" id="login-email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required>
+                    <span class="password-toggle" id="login-toggle">👁️</span>
+                    <div class="error-message" id="login-password-error"></div>
+                </div>
+
+                <div class="auth-footer">
+                    <a href="#" id="forgot-password-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <span>Login</span>
+                    <span>→</span>
+                </button>
+
+                <div class="divider">or continue with</div>
+
+                <button type="button" class="btn btn-google">
+                    <span>Google</span>
+                </button>
+
+                <div class="auth-footer">
+                    Don't have an account? <a href="#" id="show-signup">Sign up</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="auth-card hidden" id="signup-card">
+            <div class="logo">
+                <h1>Join NexusAuth</h1>
+                <p>Create your secure account</p>
+            </div>
+
+            <div class="success-message" id="signup-success-msg"></div>
+
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" class="form-control" placeholder="Enter your full name" required>
+                    <div class="error-message" id="signup-name-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" class="form-control" placeholder="Enter your email" required>
+                    <div class="error-message" id="signup-email-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="form-control" placeholder="Create a password" required>
+                    <span class="password-toggle" id="signup-toggle">👁️</span>
+                    <div class="error-message" id="signup-password-error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" class="form-control" placeholder="Confirm your password" required>
+                    <span class="password-toggle" id="signup-confirm-toggle">👁️</span>
+                    <div class="error-message" id="signup-confirm-error"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <span>Create Account</span>
+                    <span>→</span>
+                </button>
+
+                <div class="auth-footer">
+                    Already have an account? <a href="#" id="show-login">Login</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div class="auth-card hidden" id="forgot-card">
+            <div class="logo">
+                <h1>Reset Password</h1>
+                <p>We'll send you a reset link</p>
+            </div>
+
+            <div class="success-message" id="forgot-success-msg"></div>
+
+            <form id="forgot-form">
+                <div class="form-group">
+                    <label for="forgot-email">Email Address</label>
+                    <input type="email" id="forgot-email" class="form-control" placeholder="Enter your email" required>
+                    <div class="error-message" id="forgot-email-error"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <span>Send Reset Link</span>
+                    <span>→</span>
+                </button>
+
+                <div class="auth-footer">
+                    <a href="#" id="back-to-login">Back to login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const loginCard = document.getElementById('login-card');
+        const signupCard = document.getElementById('signup-card');
+        const forgotCard = document.getElementById('forgot-card');
+        const showSignup = document.getElementById('show-signup');
+        const showLogin = document.getElementById('show-login');
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        const backToLogin = document.getElementById('back-to-login');
+        
+        // Toggle between forms
+        showSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginCard.classList.add('hidden');
+            signupCard.classList.remove('hidden');
+            forgotCard.classList.add('hidden');
+        });
+
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupCard.classList.add('hidden');
+            loginCard.classList.remove('hidden');
+            forgotCard.classList.add('hidden');
+        });
+
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginCard.classList.add('hidden');
+            signupCard.classList.add('hidden');
+            forgotCard.classList.remove('hidden');
+        });
+
+        backToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotCard.classList.add('hidden');
+            loginCard.classList.remove('hidden');
+            signupCard.classList.add('hidden');
+        });
+
+        // Password toggle functionality
+        function setupPasswordToggle(toggleId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            
+            toggle.addEventListener('click', () => {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggle.textContent = '👁️‍🗨️';
+                } else {
+                    input.type = 'password';
+                    toggle.textContent = '👁️';
+                }
+            });
+        }
+
+        setupPasswordToggle('login-toggle', 'login-password');
+        setupPasswordToggle('signup-toggle', 'signup-password');
+        setupPasswordToggle('signup-confirm-toggle', 'signup-confirm-password');
+
+        // Form validation and submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simple validation
+            if (!email || !password) {
+                showError('login-email-error', 'Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('login-success-msg', 'Login successful! Redirecting...');
+                    // Redirect to dashboard after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showError('login-password-error', data.message || 'Login failed');
+                }
+            } catch (error) {
+                showError('login-password-error', 'An error occurred. Please try again.');
+                console.error('Login error:', error);
+            }
+        });
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            // Reset errors
+            resetErrors('signup');
+
+            // Validation
+            if (!name || !email || !password || !confirmPassword) {
+                showError('signup-name-error', 'Please fill in all fields');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('signup-confirm-error', 'Passwords do not match');
+                return;
+            }
+
+            if (password.length < 8) {
+                showError('signup-password-error', 'Password must be at least 8 characters');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('signup-success-msg', 'Account created successfully! Please login.');
+                    // Clear form
+                    document.getElementById('signup-form').reset();
+                    // Switch to login after 2 seconds
+                    setTimeout(() => {
+                        signupCard.classList.add('hidden');
+                        loginCard.classList.remove('hidden');
+                        document.getElementById('signup-success-msg').style.display = 'none';
+                    }, 2000);
+                } else {
+                    if (data.field) {
+                        showError(`signup-${data.field}-error`, data.message);
+                    } else {
+                        showError('signup-email-error', data.message || 'Signup failed');
+                    }
+                }
+            } catch (error) {
+                showError('signup-email-error', 'An error occurred. Please try again.');
+                console.error('Signup error:', error);
+            }
+        });
+
+        document.getElementById('forgot-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            
+            if (!email) {
+                showError('forgot-email-error', 'Please enter your email');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('forgot-success-msg', 'Password reset link sent to your email!');
+                    document.getElementById('forgot-form').reset();
+                } else {
+                    showError('forgot-email-error', data.message || 'Failed to send reset link');
+                }
+            } catch (error) {
+                showError('forgot-email-error', 'An error occurred. Please try again.');
+                console.error('Forgot password error:', error);
+            }
+        });
+
+        // Helper functions
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function resetErrors(formPrefix) {
+            const errorElements = document.querySelectorAll(`.error-message[id^="${formPrefix}"]`);
+            errorElements.forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+        }
+
+        // Check for success message in URL (for password reset)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('reset') === 'success') {
+            showSuccess('login-success-msg', 'Password reset successfully! Please login with your new password.');
+        }
+    </script>
+</body>
+</html>
